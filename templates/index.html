@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Question Answering System</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Question Answering System</h1>
+    <div>
+        <textarea id="passage" rows="10" cols="80" placeholder="Enter passage..."></textarea>
+    </div>
+    <div>
+        <input type="text" id="question" placeholder="Enter your question...">
+        <button onclick="askQuestion()">Ask</button>
+    </div>
+    <div id="answer"></div>
+    <div>
+        <h2>Conversation History</h2>
+        <ul id="conversation-history">
+            {% for item in conversation_history %}
+            <li><b>Question:</b> {{ item['question'] }}</li>
+            <li><b>Answer:</b> {{ item['answer'] }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <script>
+        function askQuestion() {
+            var passage = document.getElementById('passage').value;
+            var question = document.getElementById('question').value;
+            
+            $.ajax({
+                url: '/answer',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ passage: passage, question: question }),
+                success: function(data) {
+                    document.getElementById('answer').innerHTML = "<b>Answer:</b> " + data.answer + " (Score: " + data.score + ")";
+                    // Refresh conversation history
+                    $('#conversation-history').load(location.href + ' #conversation-history');
+                },
+                error: function() {
+                    alert('Error occurred while processing the question.');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
